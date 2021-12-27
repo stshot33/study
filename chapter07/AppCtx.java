@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AppCtx {
 	
-	@Bean(destroyMethod = "close")	// .close의 역할을 함
+	@Bean(destroyMethod = "close")	// .close()의 역할을 함
 	public DataSource dataSource() {
 		// 커넥션 풀은 커넥션을 생성하고 유지
 		// 커넥션 풀에 커넥션을 요청하면 해당 커넥션은 활성(active) 상태가 되고
