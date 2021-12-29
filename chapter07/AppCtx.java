@@ -54,4 +54,34 @@ public class AppCtx {
 		
 		return pwdSvc;
 	}
+	
+	@Bean
+	public MemberPrinter memberPrinter() {
+		return new MemberPrinter();
+	}
+	
+	@Bean
+	public MemberRegisterService memberRegSvc() {
+		MemberRegisterService memberRegSvc = new MemberRegisterService();
+		
+		return memberRegSvc;
+	}
+	
+	@Bean
+	public MemberListPrinter listPrinter() {
+		MemberListPrinter listPrinter = new MemberListPrinter();
+		listPrinter.setMemberDao(memberDao());
+		listPrinter.setPrinter(memberPrinter());
+		
+		return listPrinter;
+	}
+	
+	@Bean
+	public MemberInfoPrinter infoPrinter() {
+		MemberInfoPrinter infoPrinter = new MemberInfoPrinter();
+		infoPrinter.setPrinter(memberPrinter());
+		infoPrinter.setMemberDao(memberDao());
+		
+		return infoPrinter;
+	}
 }
