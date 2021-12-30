@@ -1,85 +1,92 @@
-package chapter03;
+package chapter07;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+
+import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
+@EnableTransactionManagement
 public class AppCtx {
+	
+	@Bean(destroyMethod = "close")	// .close()의 역할을 함
+	public DataSource dataSource() {
+		// 커넥션 풀은 커넥션을 생성하고 유지
+		// 커넥션 풀에 커넥션을 요청하면 해당 커넥션은 활성(active) 상태가 되고
+		// 커넥션을 커넥션 풀에 반환하면 유휴(idle) 상태가 됨
+		
+		// 커넥션 풀에 커넥션을 요청할 때는 getConnection() 메서드를 호출
+		// 커넥션을 커넥션 풀에 반환할 때는 close() 메서드를 호출함
+		DataSource ds = new DataSource();
+		
+		ds.setDriverClassName("org.mariadb.jdbc.Driver");
+		ds.setUrl("jdbc:mariadb://localhost:3306/spring");
+		ds.setUsername("root");
+		ds.setPassword("0000");
+		
+		ds.setInitialSize(2);
+		ds.setMaxActive(10);
+		ds.setMaxIdle(10);
+		
+		return ds;
+	}
 	
 	@Bean
 	public MemberDao memberDao() {
-		return new MemberDao();
+		return new MemberDao(dataSource());
 	}
-
+	
 	@Bean
-	public MemberRegisterService memberRegSvc() {
-		// 기존에 생성자 방식으로 직접 의존 주입했던 코드는 주석
-//		return new MemberRegisterService(memberDao());
-		return new MemberRegisterService();
+	public LogDao logDao() {
+		return new LogDao(dataSource());
+	}
+	
+	@Bean
+	public PlatformTransactionManager transactionManager() {
+		DataSourceTransactionManager tm = new DataSourceTransactionManager();
+		tm.setDataSource(dataSource());
+		
+		return tm;
 	}
 	
 	@Bean
 	public ChangePasswordService changePwdSvc() {
-		// 의존 객체를 주입하는 세터를 지웠지만 스프링 컨테이너가 알아서 의존 주입을 해준다.
-		ChangePasswordService cps = new ChangePasswordService();
-		// 의존 객체에 자동 의존 주입을 적용했으므로 직접 의존 주입을 할 필요가 없다.
-//		cps.setMemberDao(memberDao());
+		ChangePasswordService pwdSvc = new ChangePasswordService();
+		pwdSvc.setMemberDao(memberDao());
 		
-		return cps;
+		return pwdSvc;
 	}
 	
-	// @Qualifier -> 이 애노테이션이 들어갈 수 있는 위치는 두 군데
-	// 두 군데 중 첫 번째 -> @Bean 애노테이션을 붙인 빈 생셩 메서드
-	// 두 군데 중 두 번째 -> @Autowired 애노테이션을 붙인 멤버변수 또는 메서드
-	//
-	// 이 애노테이션을 사용하면 자동으로 의존을 주입(@Autowired)할 대상 빈을 저장할 수 있음
-	// Qualifier -> 직역하면 한정자 / memberPrinter1에 printer 한정자를 붙였다 라고 표현
 	@Bean
-	@Qualifier("printer")
-	public MemberPrinter memberPrinter1() {
+	public MemberPrinter memberPrinter() {
 		return new MemberPrinter();
 	}
 	
 	@Bean
-	public MemberPrinter memberPrinter2() {
-		return new MemberPrinter();
+	public MemberRegisterService memberRegSvc() {
+		MemberRegisterService memberRegSvc = new MemberRegisterService(memberDao(), logDao());
+		
+		return memberRegSvc;
 	}
 	
 	@Bean
 	public MemberListPrinter listPrinter() {
-//		return new MemberListPrinter(memberDao(), memberPrinter());
-		// MemberRegisterservice 클래스의 경우에는 멤버 변수에 @Autowired가 붙어서
-		// 기본 생성자를 통해서 자동 의존 주입이 된다고 넘어갈 순 있는데
-		// MemberListPrinter 클래스의 경우에는 setter 메서드에 @Autowired가 붙어서
-		// 코드만 보면 이해하기 어려울 수 있음
-		// @Autowired가 멤버 변수에 붙나 메서드에 붙나 똑같이 스프링이 알아서 의존 주입을 해줌
-		// 단, 자동 의존 주입을 하려면 의존 객체 타입의 빈이 컨테이너에 등록되어있어야 함!
+		MemberListPrinter listPrinter = new MemberListPrinter();
+		listPrinter.setMemberDao(memberDao());
+		listPrinter.setPrinter(memberPrinter());
 		
-		// 자동 의존 주입할 빈이 없거나
-		// 자동 의존 주입할 타입의 빈이 여러 개이거나
-		// 한다는 건 일반적인 상황이면서 개발자의 실수
-		// 이러한 일반적인 상황에서 예외가 발생하니까 이 예외를 해결할 수 있는
-		// 여러 개의 빈 중에서 자동으로 주입할 빈을 지정할 수 있는 방법이 필요함
-		// 이때 사용하는 애노테이션이 @Qualifier 임
-		return new MemberListPrinter();
+		return listPrinter;
 	}
 	
 	@Bean
 	public MemberInfoPrinter infoPrinter() {
 		MemberInfoPrinter infoPrinter = new MemberInfoPrinter();
-//		infoPrinter.setMemberDao(memberDao());
-//		infoPrinter.setPrinter(memberPrinter());
+		infoPrinter.setPrinter(memberPrinter());
+		infoPrinter.setMemberDao(memberDao());
 		
 		return infoPrinter;
-	}
-	
-	@Bean
-	public VersionPrinter versionPrinter() {
-		VersionPrinter versionPrinter = new VersionPrinter();
-		versionPrinter.setMajorVersion(1);
-		versionPrinter.setMinorVersion(4);
-		
-		return versionPrinter;
 	}
 }
