@@ -1,5 +1,5 @@
 package chapter10;
 
-public class MemberNotFoundException extends RuntimeException{
+public class MemberNotFoundException extends RuntimeException {
 
 }

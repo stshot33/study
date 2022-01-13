@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.jdbc.core.RowMapper;
 
-public class MemberMapper implements RowMapper<Member>{
+public class MemberMapper implements RowMapper<Member> {
 
 	@Override
 	public Member mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -20,4 +20,8 @@ public class MemberMapper implements RowMapper<Member>{
 		
 		return member;
 	}
+	
 }
+
+
+

@@ -1,10 +1,9 @@
 package chapter10;
 
-
-
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
@@ -12,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class AppCtx {
 
-	@Bean
+	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
 		DataSource ds = new DataSource();
 		
@@ -29,6 +28,8 @@ public class AppCtx {
 	
 	@Bean
 	public PlatformTransactionManager transactionManager() {
+		DataSourceTransactionManager tm = new DataSourceTransactionManager();
+		tm.setDataSource(dataSource());
 		
 		return tm;
 	}
@@ -44,5 +45,12 @@ public class AppCtx {
 		pwdSvc.setMemberDao(memberDao());
 		
 		return pwdSvc;
+	}
+	
+	@Bean
+	public MemberRegisterService memberRegSvc() {
+		MemberRegisterService memberRegSvc = new MemberRegisterService(memberDao());
+		
+		return memberRegSvc;
 	}
 }

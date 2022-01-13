@@ -6,8 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ControllerConfig {
-	
-	@Bean
+	@Bean(destroyMethod = "close")
 	public DataSource dataSource() {
 		DataSource ds = new DataSource();
 		
@@ -33,10 +32,18 @@ public class ControllerConfig {
 		
 		return memberRegSvc;
 	}
-	
-	// registerController를 빈으로 갖는 설정 클래스를 완성하세요.
+
+	// registController를 빈으로 갖는 설정 클래스를 완성하세요.
 	@Bean
 	public RegistController registerController() {
 		return new RegistController(memberRegisterService());
 	}
+	
+	@Bean
+	public SurveyController surveyController() {
+		return new SurveyController();
+	}
+	
 }
+
+

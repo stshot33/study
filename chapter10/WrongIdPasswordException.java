@@ -1,5 +1,5 @@
 package chapter10;
 
-public class WrongIdPasswordException extends RuntimeException{
+public class WrongIdPasswordException extends RuntimeException {
 
 }

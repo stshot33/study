@@ -6,8 +6,8 @@ public class RegisterRequest {
 	private String password;
 	private String confirmPassword;
 	private String name;
-	
-	public boolean isPasswordEqualToConfirmPasword() {
+
+	public boolean isPasswordEqualToConfirmPassword() {
 		return password.equals(confirmPassword);
 	}
 
@@ -34,7 +34,6 @@ public class RegisterRequest {
 	public void setConfirmPassword(String confirmPassword) {
 		this.confirmPassword = confirmPassword;
 	}
-
 	public String getName() {
 		return name;
 	}
@@ -42,6 +41,5 @@ public class RegisterRequest {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
+
 }

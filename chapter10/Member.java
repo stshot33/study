@@ -24,7 +24,7 @@ public class Member {
 	
 	// 비밀번호 변경 메서드
 	// oldPW -> 현재 비밀번호
-	// newPW -> 변경할 비밀번호
+	// newPW -> 변경 할 비밀번호
 	public void changePassword(String oldPW, String newPW) throws WrongIdPasswordException {
 		if(!password.equals(oldPW)) {
 			throw new WrongIdPasswordException();
@@ -72,5 +72,12 @@ public class Member {
 	public void setRegisterDateTime(LocalDateTime registerDateTime) {
 		this.registerDateTime = registerDateTime;
 	}
-	
 }
+
+
+
+
+
+
+
+
